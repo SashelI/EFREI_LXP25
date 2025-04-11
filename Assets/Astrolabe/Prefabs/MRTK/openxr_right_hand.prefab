@@ -432,12 +432,14 @@ SkinnedMeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 3
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 4c63e230f530e6c4e8be8b25846c0989, type: 2}
   - {fileID: 2100000, guid: 5138877b31bc96046b8d186cd276d724, type: 2}
-  - {fileID: 2100000, guid: 57df713765719824cb8a3189045c20ba, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
