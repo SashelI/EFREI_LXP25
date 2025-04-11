@@ -1,0 +1,166 @@
+﻿using Agata.Diagnostics;
+using Agata.Twinkle;
+using Agata.Twinkle.Unity.Renderers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Agata.Twinkle.Unity.Renderers
+{
+    public abstract class VisualFluentElement : VisualElement, IVisualFluentElement
+    {
+        public VisualFluentElement(ILogicalElement logicalElement) : base(logicalElement)
+        {
+        }
+
+        public FluentShader FluentShader
+        {
+            get;
+            set;
+        }
+
+        public override void SetHitTestVisible(bool value)
+        {
+            this.FluentShader.IsHitTestVisible = value;
+        }
+
+        /// <summary>
+        /// Brush
+        /// </summary>
+
+        public void SetBackground(Brush brush, Action<Brush> sizeChanged)
+        {
+            this.FluentShader.SetBackground(brush, sizeChanged);
+        }
+
+        public Vector2 TileScale
+        {
+            get
+            {
+                return this.FluentShader.TileScale;
+            }
+            set
+            {
+                this.FluentShader.TileScale = value;
+            }
+        }
+
+        private Vector2 tileScale = Vector2.One;
+
+        public Vector2 TileOffset
+        {
+            get
+            {
+                return this.FluentShader.TileOffset;
+            }
+            set
+            {
+                this.FluentShader.TileOffset = value;
+            }
+        }
+
+        public TileMode TileMode
+        {
+            get
+            {
+                return this.FluentShader.TileMode;
+            }
+
+            set
+            {
+                //Log.WriteLine("VisualFluentElement TileMode=" + value);
+                this.FluentShader.TileMode = value;
+            }
+        }
+
+        public AlignmentX AlignmentX
+        {
+            get
+            {
+                return this.FluentShader.AlignmentX;
+            }
+
+            set
+            {
+                this.FluentShader.AlignmentX = value;
+            }
+        }
+
+        public AlignmentY AlignmentY
+        {
+            get
+            {
+                return this.FluentShader.AlignmentY;
+            }
+
+            set
+            {
+                this.FluentShader.AlignmentY = value;
+            }
+        }
+
+        public float AlignmentOffsetX
+        {
+            get
+            {
+                return this.FluentShader.AlignmentOffsetX;
+            }
+        }
+
+        public float AlignmentOffsetY
+        {
+            get
+            {
+                return this.FluentShader.AlignmentOffsetY;
+            }
+        }
+
+        public virtual float Opacity
+        {
+            get
+            {
+                return this.FluentShader.Opacity;
+            }
+
+            set
+            {
+                this.FluentShader.Opacity = value;
+            }
+        }
+
+        public virtual ShaderMode ShaderMode
+        {
+            get
+            {
+                return this.FluentShader.ShaderMode;
+            }
+
+            set
+            {
+                this.FluentShader.ShaderMode = value;
+            }
+        }
+
+        public void SetLightColor(SolidColorBrush color)
+        {
+            this.FluentShader.SetLightColor(color, true);
+        }
+
+        public void SetLightEnabled(bool isLightEnabled)
+        {
+            this.FluentShader.SetLightEnabled(isLightEnabled, true);
+        }
+
+        public void SetLightIntensity(float lightIntensity)
+        {
+            this.FluentShader.SetLightIntensity(lightIntensity, true);
+        }
+
+        public void SetCullMode(CullMode cullMode)
+        {
+            this.FluentShader.SetCullMode(cullMode, true);
+        }
+    }
+}

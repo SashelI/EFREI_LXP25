@@ -1,0 +1,269 @@
+﻿using System;
+using Agata.Twinkle;
+using Agata.Twinkle.Renderers;
+using Synergiz.Tools.Unity;
+using UnityEngine;
+using Agata.Diagnostics;
+using Agata.Twinkle.Tools;
+using System.IO;
+
+namespace Agata.Twinkle.Unity.Renderers
+{
+    public class VisualModel3D : VisualElement, IVisualModel3D
+    {
+        public static void LinkToVisualFactory()
+        {
+            VisualElementFactory.Instance.Add(typeof(LogicalModel3D), typeof(VisualModel3D));
+        }
+
+        public VisualModel3D(ILogicalElement logicalElement) : base(logicalElement)
+        {
+            model3D = GameObject.Instantiate(TwinklePrefabFactory.Instance.PrefabModel3D).GetComponent<LayoutModel3D>();
+            this.TwinkleComponent = model3D;
+        }
+
+        LayoutModel3D model3D;
+
+        public float Depth 
+        { 
+            get; set;
+        }
+        public Model3DSource Source 
+        { 
+            get
+            {
+                return this.source;
+            } 
+        }
+
+        private Model3DSource source;
+
+        public void SetSource(Model3DSource value, Action<Model3DSource> loaded)
+        {
+            if (this.source != value)
+            {
+                this.source = value;
+
+                this.LoadModel3D(value, (gameObjectLoaded) =>
+                {
+                    // on le gère le parent
+                    this.model3D.SetObject3D(gameObjectLoaded);
+                    loaded?.Invoke(value);
+                });
+            }
+        }
+
+        private async void LoadModel3D(Model3DSource model, Action<GameObject> completed)
+        {
+            try
+            {
+                if(model == null || model.Source == null)
+                {
+                    Log.WriteLine($"Model3DSource is null!");
+
+                    completed?.Invoke(null);
+                    return;
+                }
+
+                GameObject gameObjectLoaded;
+
+                if (model.IsLoaded == false)
+                {
+                    // Transform l'uri
+                    var fullfilename = UriInformation.ParseToRead(model.Source).GetPath();
+                    gameObjectLoaded = await Model3DFileHelper.ReadModel3DFileAsync(fullfilename, this.ShaderMode);
+                }
+                else
+                {
+                    gameObjectLoaded = (GameObject)model.Content;
+                }
+
+                if (gameObjectLoaded != null)
+                {
+                    gameObjectLoaded.SetActive(false);
+
+                    //Log.WriteLine($"Model3D {model.Filename} is loaded!");
+
+                    if (model.IsLoaded == false)
+                    {
+                        var renderers = gameObjectLoaded.GetComponentsInChildren<Renderer>();
+
+                        if (renderers != null && renderers.Length > 0)
+                        {
+                            /*
+                            var positionOriginalWord = model3D.Object3D.position;
+                            var rotationOriginalWord = model3D.Object3D.eulerAngles;
+                            var scaleOriginalWord = model3D.Object3D.localScale;
+
+                            var parent = model3D.Object3D.parent;
+                            model3D.Object3D.parent = null;
+
+                            model3D.Object3D.position = UnityEngine.Vector3.zero;
+                            model3D.Object3D.rotation = UnityEngine.Quaternion.identity;
+                            model3D.Object3D.localScale = UnityEngine.Vector3.one;
+                            */
+
+                            // calcul le bounds global de tous les objets enfants
+                            Bounds bounds = renderers[0].bounds;
+
+                            foreach (var renderer in renderers)
+                            {
+                                bounds.Encapsulate(renderer.bounds);
+                            }
+
+                            /*
+                            model3D.Object3D.parent = parent;
+
+                            model3D.Object3D.position = positionOriginalWord;
+                            model3D.Object3D.eulerAngles = rotationOriginalWord;
+                            model3D.Object3D.localScale = scaleOriginalWord;
+                            */
+
+                            //Log.WriteLine($"LoadedObject Scale={objectLoaded.transform.localScale}");
+
+                            //Log.WriteLine("bounds size   world=" + bounds.size);
+                            //Log.WriteLine("bounds center world=" + bounds.center);
+
+                            model.Width = bounds.size.x.ToLogical();
+                            model.Height = bounds.size.y.ToLogical();
+                            model.Depth = bounds.size.z.ToLogical();
+
+                            //Log.WriteLine("center (original)=" + bounds.center);
+
+                            model.Center = bounds.center.ToVector3().ToLogical();
+                            model.Ray = bounds.extents.magnitude.ToLogical();
+
+                            Log.WriteLine("model.Width=" + model.Width);
+                            Log.WriteLine("model.Height=" + model.Height);
+                            Log.WriteLine("model.Depth=" + model.Depth);
+                            Log.WriteLine("model.Center=" + model.Center);
+                            Log.WriteLine("model.Ray=" + model.Ray);
+
+                            model.Content = gameObjectLoaded;
+
+                            //Log.WriteLine($"Model3D{model.Filename}={model.Width}x{model.Height}x{model.Depth}"); 
+
+                            this.model3D.IsModelLoaded = true;
+                        }
+                    }
+                }
+
+                completed?.Invoke(gameObjectLoaded);
+
+                gameObjectLoaded.SetActive(true);
+
+                return;
+
+            }
+            catch (Exception ex)
+            {
+                Log.WriteLine(ex);
+            }
+
+            this.model3D.IsModelLoaded = false;
+
+            completed?.Invoke(null);
+
+            return;
+        }
+
+        public ZAlignment ZAlignment
+        {
+            get;
+            set;
+        }
+
+        public override void Resize(Box renderBox)
+        {
+            if(this.source != null && this.source.IsLoaded == true)
+            {
+                //Log.WriteLine("Model3D RenderRect="+renderBox);
+
+                //Taille max du crane en x,y,z -> 29,7
+                //1/29.7 -> 0.034 taille ramené à 1
+                //taille la plus petite dans le Resize (cette methode)
+                //ici 0.05 en y (qui represente le scale Y)
+                //0.034*0.05 => 0,001708 = taille du scale proportionnelle dans Objet3D
+                
+                //Rayon (renderer.bounds.extents.magnitude) -> 20.5
+                //0.05*20.5/29.7 = minRenderResize * transform / sourceMaxSize => pour utiliser les transforms du crane
+
+                var sourceWidth = source.Width.ToVisual();
+                var sourceHeight = source.Height.ToVisual();
+                var sourceDepth = source.Depth.ToVisual();
+                var sourceRay = source.Ray.ToVisual();
+                var sourceCenter = source.Center.ToVisual();
+
+                float renderMinSize = Mathf.Min(renderBox.Width, renderBox.Height);
+                float sourceMaxSize = sourceMaxSize = Mathf.Max(sourceWidth, sourceHeight);
+
+                                
+                // en mode Ray on va diminuer la taille pour que le model3D rentre dans une sphere de rayon sourceRay (pratique pour que le rotation ne touche pas les bords)
+                var ratioWidth = sourceWidth == 0 ? 0 : renderBox.Width / sourceWidth;
+                var ratioHeight = sourceHeight == 0 ? 0 : renderBox.Height / sourceHeight;
+                float scaleSize = Mathf.Min( ratioWidth, ratioHeight);
+
+                /*
+                if(ZAlignment == ZAlignment.Ray)
+                {
+                    sourceMaxSize = Mathf.Max(sourceMaxSize, sourceDepth);
+
+                    var ratioWidthDepth = sourceWidth == 0 ? 0 : renderRect.Width / sourceDepth;
+                    var ratioHeightDepth = sourceHeight == 0 ? 0 : renderRect.Height / sourceDepth;
+                    
+                    scaleSize = Mathf.Min( Mathf.Min( scaleSize, ratioWidthDepth), ratioHeightDepth);
+                }
+                */
+
+                this.model3D.Width = scaleSize;
+                this.model3D.Height = scaleSize;
+                this.model3D.Depth = scaleSize;
+
+                Vector3 center;
+                
+                if(sourceMaxSize == 0 || scaleSize == 0)
+                {
+                    center = Vector3.Zero;
+                }
+                else
+                {
+                    center  = ((sourceCenter * renderMinSize) / sourceMaxSize) / scaleSize;
+                }
+
+                this.model3D.SetCenter( center );
+
+                float halfDepth = 0;
+                float ray = 0;
+
+                if(sourceMaxSize != 0)
+                {
+                    var scaleZ = this.Scale.Z;
+                    halfDepth = ((sourceDepth * renderMinSize) / sourceMaxSize * scaleZ) / 2;
+                    ray = ((sourceRay * renderMinSize) / sourceMaxSize * scaleZ);
+                }
+
+                float positionZ = 0;
+                
+                switch(this.ZAlignment)
+                {
+                    case ZAlignment.Ray:
+                        positionZ += ray;
+                        break;
+                    case ZAlignment.HalfDepth:
+                        positionZ += halfDepth;
+                        break;
+                }
+
+                // centre de la renderBox (mais pas Z)
+                var centerRenderBox = new Vector3(
+                    renderBox.Location.X + renderBox.Width / 2, 
+                    renderBox.Location.Y + renderBox.Height / 2,
+                    renderBox.Location.Z + positionZ
+                    );
+
+                this.Locate(centerRenderBox);
+                this.ResizeOverride(renderBox);
+            }        
+        }
+    }
+}

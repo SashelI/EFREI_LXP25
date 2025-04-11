@@ -1,0 +1,31 @@
+fileFormatVersion: 2
+guid: 4bf0803158d89c34f91aaf7cd5efd232
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - PrefabRectangle: {fileID: 4883706446358299026, guid: 95f7f11025c863c4b922817680b61fc2,
+      type: 3}
+  - PrefabButtonGlass: {fileID: 2992167029941072409, guid: 2bf407768735bac46b33cd6fcdd76201,
+      type: 3}
+  - PrefabTextMeshPro: {fileID: 5886062304675254114, guid: ef5c443b2b44e3c44bb792eeb955926a,
+      type: 3}
+  - PrefabCube: {fileID: 7202089984535525798, guid: f53a300876bca68469a0b127f3ceb910,
+      type: 3}
+  - PrefabSphere: {fileID: 224111249484097601, guid: 2c4aa074bbf3c5e4ea324c831994b8f4,
+      type: 3}
+  - PrefabCylinder: {fileID: 224111249484097601, guid: ebde991c56609a747a963a80dea21eb1,
+      type: 3}
+  - PrefabCapsule: {fileID: 224111249484097601, guid: 4518c76c814fa4945ab250828b1dc9d7,
+      type: 3}
+  - PrefabQuad: {fileID: 224111249484097601, guid: 9f1c3d25083cbb94e9f6ba3398c4421e,
+      type: 3}
+  - PrefabPlane: {fileID: 224111249484097601, guid: a376bea4eab69ee4c8ba6bcbf7ab0c1c,
+      type: 3}
+  - PrefabModel3D: {fileID: 989674873888938311, guid: f8ec8df88ee1c0b41842b9bbd2ec3a90,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

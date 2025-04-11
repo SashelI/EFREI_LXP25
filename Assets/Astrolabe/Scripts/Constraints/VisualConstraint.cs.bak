@@ -1,0 +1,154 @@
+﻿using Agata.Twinkle;
+using Agata.Twinkle.IO;
+using Agata.Twinkle.Renderers;
+using Agata.Twinkle.Unity.Renderers;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.Utilities;
+using System.Diagnostics;
+using UnityEngine;
+
+namespace Agata.Twinkle.Uwp.Renderers
+{
+    public abstract class VisualConstraint : VisualObject, IVisualConstraint
+    {
+        public static void LinkToVisualFactory()
+        {
+            VisualObjectFactory.Instance.Add(typeof(LogicalConstraint), typeof(VisualConstraint));
+        }
+
+        protected GameObject gameObject;
+
+        /// <summary>
+        /// parent ou est appliqué le VisualConstraint (LogicalManipulator)
+        /// </summary>
+        /// <param name="parent"></param>
+
+        public void OnAdd(ILogicalElement parent)
+        {
+            this.logicalParent = parent;
+            
+            this.gameObject = parent.GetGameObject();
+
+            this.transformConstraint = this.OnAddOverride(parent, gameObject);
+
+            this.InitializeProperty();
+        }
+
+        public void OnRemove()
+        {
+            this.OnRemoveOverride();
+
+            GameObject.Destroy(transformConstraint);
+            transformConstraint = null;
+        }
+
+        protected abstract TransformConstraint OnAddOverride(ILogicalElement parent, GameObject gameobject);
+        protected virtual void OnRemoveOverride() { }
+
+        private LogicalConstraint logicalConstraint;
+        
+        // element qui accueillera physiquement les contraintes (LogicalManipulator par exemple)
+        private ILogicalElement logicalParent;
+
+        public VisualConstraint(LogicalConstraint logicalConstraint) : base(logicalConstraint)
+        {
+            this.logicalConstraint = logicalConstraint;
+        }
+
+        protected TransformConstraint transformConstraint = null;
+
+        [TwinkleLogicalProperty]
+
+        public virtual bool IsEnabled
+        {
+            get
+            {
+                if(this.transformConstraint == null)
+                {
+                    return this.IsEnabled;
+                }
+
+                return transformConstraint.enabled;
+            }
+
+            set
+            {
+                isEnabled = value;
+
+                if (this.transformConstraint != null)
+                {
+                    transformConstraint.enabled = value;
+                }
+            }
+        }
+
+        bool isEnabled = true;
+
+        [TwinkleLogicalProperty]
+
+        public ManipulationTypes HandType 
+        {
+            get
+            {
+                if(this.transformConstraint == null)
+                {
+                    return this.handType;
+                }
+
+                return (ManipulationTypes)(int)transformConstraint.HandType;
+            }
+
+            set
+            {
+                handType = value;
+
+                if (this.transformConstraint != null)
+                {
+                    transformConstraint.HandType = (ManipulationHandFlags)(int)value;
+                }
+            }
+        }
+
+        private ManipulationTypes handType = ManipulationTypes.OneHand;
+
+        [TwinkleLogicalProperty]
+
+        public ProximityTypes ProximityType 
+        {
+            get
+            {
+                if(this.transformConstraint == null)
+                {
+                    return this.proximityType;
+                }
+
+                return (ProximityTypes)(int)transformConstraint.ProximityType;
+            }
+
+            set
+            {
+                proximityType = value;
+
+                if (transformConstraint != null)
+                {
+                    transformConstraint.ProximityType = (ManipulationProximityFlags)(int)value;
+                }
+            }
+        }
+
+        private ProximityTypes proximityType = ProximityTypes.Far | ProximityTypes.Near;
+
+        /// <summary>
+        /// InitializeProperty : Quand la contrainte est ajouté à sa collecton, le TransformConstraint est crée.
+        /// Les propriétés sont peut être deja initialisé alors que le TransformConstraint n'existait pas.
+        /// On reaffect les valeur au TransformConstraint
+        /// </summary>
+
+        protected virtual void InitializeProperty()
+        {
+            this.IsEnabled = this.isEnabled;
+            this.HandType = this.handType;
+            this.ProximityType = this.proximityType;
+        }
+    }
+}

@@ -1,0 +1,600 @@
+﻿using System.IO;
+using Agata.Diagnostics;
+using Agata.Twinkle;
+using Synergiz.Tools.Unity;
+using TMPro;
+using UnityEngine;
+using Twinkle = Agata.Twinkle;
+
+public class LayoutTextMeshPro : TwinkleComponent
+{
+    private RectTransform rectTransform;
+    private BoxCollider textMeshProCollider;
+    private TextMeshPro textMeshProText;
+
+    /// <summary>
+    /// Obtenir la taille du TextMeshPro
+    /// </summary>
+    /// <returns></returns>
+
+    public Size GetBounds(Size availableSize)
+    {
+        // permet de contrer le bug d'affichage du trimming character ellipsis en mode taille infini qui s'affiche alors qu'il ne devrait pas.
+        // On va le forcer en truncat a la place
+        if (float.IsPositiveInfinity(availableSize.Width))
+        {
+            textMeshProText.enableWordWrapping = false;
+            textMeshProText.overflowMode = TextOverflowModes.Overflow;
+        }
+        else
+        {
+            // ici on a une width de fixé
+            bool isWrap = this.textWrapping == TextWrapping.Wrap;
+            textMeshProText.enableWordWrapping = isWrap;
+
+            switch (this.textTrimming)
+            {
+                case TextTrimming.CharacterEllipsis:
+                    this.textMeshProText.overflowMode = TextOverflowModes.Ellipsis;
+                    break;
+                default:
+                    this.textMeshProText.overflowMode = TextOverflowModes.Truncate;
+                    break;
+            }
+
+            // Height et width sont fixé ?
+            if (float.IsPositiveInfinity(availableSize.Height) == false)
+            {
+                // ici width et height sont fixé (pas besoin de calcul)
+                // les overflowmodes sont bien fixés
+                return availableSize;
+            }
+        }
+
+        // il est indispensable de changer le enabled pour forcer le ForceMeshUpdate a avoir la bonne taille
+        // en mode ligne et wrap
+        //var enabled = textMeshProText.enabled;
+        //textMeshProText.enabled = !enabled;
+        textMeshProText.ForceMeshUpdate(true);
+
+        var x = availableSize.Width;
+        var y = availableSize.Height;
+
+        // on ne conserve les valeurs que si availableSize est PositiveInfinity 
+        if (float.IsPositiveInfinity(availableSize.Width) == true)
+        {
+            // maintenant que le ForceMeshUpdate est OK on peut récupérer la bonne taille de la boite
+            var renderSize = textMeshProText.GetRenderedValues();
+            x = renderSize.x;
+        }
+
+        if (float.IsPositiveInfinity(availableSize.Height) == true)
+        {
+            // malheureusement RendererValue ne fonctionne pas bien en hauteur
+            // On va donc calculer nous même la hauteur des lignes         
+            textMeshProText.GetTextInfo(this.text);
+
+            float heightLines = 0;
+            var textInfo = textMeshProText.textInfo;
+
+            for (int i = 0; i < textMeshProText.textInfo.lineCount; i++)
+            {
+                heightLines += textInfo.lineInfo[i].lineHeight;
+            }
+
+            y = heightLines;
+        }
+
+        // On rajoute un peu de taille pour eviter les problèmes du dernier caractère qui n'est pas pris en compte (pas systematique)
+        // C'est pas génial mais pour l'instant on ne peut faire que ça
+        x += 0.002f;
+
+        //Log.WriteLine("X=" + x + " availableSize.Width=" + availableSize.Width + " text=" + textMeshProText.text);
+
+        return new Size(x, y);
+    }
+
+    /// <summary>
+    /// Si la taille du TwinkleComponent est Zero on cache le TMP sinon on l'affiche. Par defaut rien n'est affiché pour eviter les glitchs de texte quand aucune taille n'est definie
+    /// </summary>
+
+    private void ShowOrHideTextMeshPro()
+    {
+        if (this.Width <= 0 || this.Height <= 0)
+        {
+            this.TextMeshPro.localScale = UnityEngine.Vector3.zero;
+        }
+        else
+        {
+            this.TextMeshPro.localScale = UnityEngine.Vector3.one;
+        }
+    }
+
+    public TextWrapping TextWrapping
+    {
+        get
+        {
+            return this.TextWrapping;
+        }
+
+        set
+        {
+            this.textWrapping = value;
+            // La prise en compte s'effectue dans le GetBounds
+        }
+    }
+
+    public SolidColorBrush Foreground
+    {
+        get
+        {
+            return this.foreground;
+        }
+
+        set
+        {
+            if (this.foreground != value)
+            {
+                this.foreground = value;
+
+                Color32 color;
+
+                if (value != null)
+                {
+                    var solidColorBrush = value as SolidColorBrush;
+
+                    if (solidColorBrush != null)
+                    {
+                        color = solidColorBrush.ToUnityColor();
+                    }
+                    else
+                    {
+                        // si le solidColorBrush est vide
+                        color = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+                    }
+                }
+                else
+                {
+                    // si la couleur est vide
+                    color = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+                }
+
+                // permet de se souvenir de la couleur utilisé
+                this.foregroundWhitoutOpacity = color;
+                this.SetColorWithOpacity();
+            }
+        }
+    }
+
+    private SolidColorBrush foreground = new SolidColorBrush(Colors.White);
+    private Color32 foregroundWhitoutOpacity = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+
+    /*
+    public SolidColorBrush OutlineColor
+    {
+        get
+        {
+            return this.outlineColor;
+        }
+
+        set
+        {
+            if (this.outlineColor != value)
+            {
+                this.outlineColor = value;
+
+                Color32 color;
+
+                if (value != null)
+                {
+                    var solidColorBrush = value as SolidColorBrush;
+
+                    if (solidColorBrush != null)
+                    {
+                        color = solidColorBrush.ToUnityColor();
+                    }
+                    else
+                    {
+                        // si le solidColorBrush est vide
+                        color = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+                    }
+                }
+                else
+                {
+                    // si la couleur est vide
+                    color = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+                }
+
+                // permet de se souvenir de la couleur utilisé
+                this.outlineColorWhitoutOpacity = color;
+                this.SetColorWithOpacity();
+            }
+        }
+    }
+
+    private SolidColorBrush outlineColor = new SolidColorBrush(Colors.Black);
+    private Color32 outlineColorWhitoutOpacity = new Color32(0x00, 0x00, 0x00, 0xFF);
+    */
+
+    /// <summary>
+    /// Epaisseur de 0 à 1
+    /// </summary>
+
+    /*
+    public float OutlineThickness
+    {
+        get
+        {
+            return this.outlineThickness;
+        }
+
+        set
+        {
+            if (this.outlineThickness != value)
+            {
+                this.SetOutlineThickness(value);
+            }
+        }
+    }
+
+    // Ne fonctionne pas lors du changement de fonte (il perd le shader) :/
+
+    private void SetOutlineThickness(float value)
+    {
+        var newWidth = Mathf.Clamp(value, 0, 1);
+
+        if (newWidth == 0)
+        {
+            Log.WriteLine("DISABLE OUTLINE");
+            // desactive quand on passe à zero
+            this.textMeshProText.materialForRendering.DisableKeyword("OUTLINE_ON");
+        }
+        else
+        {
+            var oldWidth = Mathf.Clamp(outlineThickness, 0, 1);
+
+            if (oldWidth == 0)
+            {
+                // active quand on était à zéro
+                Log.WriteLine("ENABLE OUTLINE");
+                this.textMeshProText.materialForRendering.EnableKeyword("OUTLINE_ON");
+            }
+        }
+
+        this.outlineThickness = value;
+        this.textMeshProText.outlineWidth = newWidth;
+    }
+
+    private float outlineThickness = 0;
+    */
+
+    public float Opacity
+    {
+        get
+        {
+            return this.opacity;
+        }
+
+        set
+        {
+            if (this.opacity != value)
+            {
+                this.opacity = value;
+                this.SetColorWithOpacity();
+            }
+        }
+    }
+
+    private float opacity = 1.0f;
+
+    private void SetColorWithOpacity()
+    {
+        var newColor = foregroundWhitoutOpacity.GetColorWithOpacity(this.opacity);
+        this.textMeshProText.color = newColor;
+
+        // Ci-dessous : provoque un bug quand l'opacity est à 0 et que le parent est Visiblity=Collapsed et qu'on le passe à Opacity=1 puis parent à Visiblity=Visible -> L'affichage de la fonte se casse
+        //newColor = outlineColorWhitoutOpacity.GetColorWithOpacity(this.opacity);
+        //this.textMeshProText.outlineColor = newColor;
+    }
+
+    private TextWrapping textWrapping = TextWrapping.NoWrap;
+
+    public TextTrimming TextTrimming
+    {
+        get
+        {
+            return this.TextTrimming;
+        }
+
+        set
+        {
+            this.textTrimming = value;
+        }
+    }
+
+    private TextTrimming textTrimming = TextTrimming.None;
+
+
+    public Twinkle.TextAlignment TextAlignment
+    {
+        get
+        {
+            return textAlignment;
+        }
+
+        set
+        {
+            if (textAlignment != value)
+            {
+                this.SetTextAlignment(value);
+            }
+        }
+    }
+
+    private Twinkle.TextAlignment textAlignment = Twinkle.TextAlignment.Left;
+
+    private void SetTextAlignment(Twinkle.TextAlignment value)
+    {
+        this.textAlignment = value;
+
+        if (this.textMeshProText != null)
+        {
+            switch (value)
+            {
+                case Twinkle.TextAlignment.Left:
+                    this.SetHorizontalAlignment(HorizontalAlignmentOptions.Left);
+                    break;
+
+                case Twinkle.TextAlignment.Right:
+                    this.SetHorizontalAlignment(HorizontalAlignmentOptions.Right);
+                    break;
+
+                case Twinkle.TextAlignment.Center:
+                    this.SetHorizontalAlignment(HorizontalAlignmentOptions.Center);
+                    break;
+                case Twinkle.TextAlignment.Justify:
+                    this.SetHorizontalAlignment(HorizontalAlignmentOptions.Justified);
+                    break;
+            }
+        }
+    }
+
+    private void SetHorizontalAlignment(HorizontalAlignmentOptions option)
+    {
+        this.textMeshProText.alignment = (TextAlignmentOptions)((int)textMeshProText.alignment & 0xFF00 | (int)option);
+    }
+
+    private void SetVerticalAlignment(VerticalAlignmentOptions option)
+    {
+        this.textMeshProText.alignment = (TextAlignmentOptions)((int)textMeshProText.alignment & 0x00FF | (int)option);
+    }
+
+
+    public float FontSize
+    {
+        get
+        {
+            return fontSize;
+        }
+
+        set
+        {
+            if (fontSize != value)
+            {
+                this.SetFontSize(value);
+            }
+        }
+    }
+
+    private float fontSize = 0.04f;
+
+    private void SetFontSize(float value)
+    {
+        this.fontSize = value;
+
+        if (this.textMeshProText != null)
+        {
+            float fs = 0;
+
+            if (float.IsNaN(value))
+            {
+                fs = 0;
+            }
+            else
+            {
+                fs = this.fontSize;
+            }
+
+            this.textMeshProText.fontSize = fs;
+        }
+    }
+
+    protected override void SetWidthOverride(float width)
+    {
+        if (this.rectTransform != null)
+        {
+            this.rectTransform.sizeDelta = new UnityEngine.Vector2(width, this.rectTransform.sizeDelta.y);
+            this.SetColliderSize(width, this.rectTransform.sizeDelta.y);
+        }
+
+        this.ShowOrHideTextMeshPro();
+        //this.TextMeshPro.gameObject.SetActive(width != 0);
+    }
+
+    protected override void SetHeightOverride(float height)
+    {
+        if (this.rectTransform != null)
+        {
+            this.rectTransform.sizeDelta = new UnityEngine.Vector2(this.rectTransform.sizeDelta.x, height);
+            this.SetColliderSize(this.rectTransform.sizeDelta.x, height);
+        }
+
+        this.ShowOrHideTextMeshPro();
+        //this.TextMeshPro.gameObject.SetActive(height != 0);
+    }
+
+    public string Text
+    {
+        get
+        {
+            return this.text;
+        }
+
+        set
+        {
+            if (this.text != value)
+            {
+                this.SetText(value);
+            }
+        }
+    }
+
+    private string text;
+
+    private void SetText(string value)
+    {
+        this.text = value;
+
+        if (this.textMeshProText != null)
+        {
+            this.textMeshProText.SetText(value);
+        }
+    }
+
+    public void SetFontSDF(TMP_FontAsset fontSfd)
+    {
+        //var fontNames = Font.GetPathsToOSFonts();
+        //var font = new Font(fontNames[0]);
+        //var fontAsset = TMP_FontAsset.CreateFontAsset(font);
+
+        this.textMeshProText.font = fontSfd;
+        //this.textMeshProText.materialForRendering.shader = Shader.Find("Mixed Reality Toolkit/TextMeshPro");
+        //this.SetOutlineThickness(this.outlineThickness);
+    }
+
+    public void SetFontStyle(Agata.Twinkle.FontStyle fontStyle, Agata.Twinkle.FontWeight fontWeight, TextDecorations textDecorations, CharacterCasing characterCasing)
+    {
+        FontStyles fontGlobalStyles = FontStyles.Normal;
+
+        if (fontStyle == Twinkle.FontStyle.Italic)
+        {
+            fontGlobalStyles |= FontStyles.Italic;
+        }
+
+        if (fontWeight == Twinkle.FontWeight.Bold)
+        {
+            fontGlobalStyles |= FontStyles.Bold;
+        }
+
+        if ((textDecorations & TextDecorations.Strikethrough) == TextDecorations.Strikethrough)
+        {
+            fontGlobalStyles |= FontStyles.Strikethrough;
+        }
+
+        if ((textDecorations & TextDecorations.Underline) == TextDecorations.Underline)
+        {
+            fontGlobalStyles |= FontStyles.Underline;
+        }
+
+        switch (characterCasing)
+        {
+            case CharacterCasing.Lower:
+                fontGlobalStyles |= FontStyles.LowerCase;
+                break;
+
+            case CharacterCasing.Upper:
+                fontGlobalStyles |= FontStyles.UpperCase;
+                break;
+        }
+
+        this.textMeshProText.fontStyle = fontGlobalStyles;
+    }
+
+    /// <summary>
+    /// GameObject TextMeshPro
+    /// </summary>
+
+    public Transform TextMeshPro
+    {
+        get;
+        private set;
+    }
+
+    // Start is called before the first frame update
+    protected override void AwakeOverride()
+    {
+        var tmp = this.transform.Find("Tmp");
+
+        this.TextMeshPro = tmp;
+
+        // On rend invisible le textmeshpro tant qu'il n'a pas de taille calculé
+        tmp.localScale = UnityEngine.Vector3.zero;
+
+        this.rectTransform = tmp.GetComponent<RectTransform>();
+        this.textMeshProText = tmp.GetComponent<TextMeshPro>();
+
+        // Description overflowMode
+        // mode overflow = bon pour les width infinie
+        // mode ellipsis = coupe par lettre ou par mot si enablewordwrapping est à true ne fonctionne pas bien taille (a tendance à mettre des ... à la fin alors qu'il devrait afficher les dernières lettres normalement)
+        // mode Linked = semble être comme overflow
+        // mode Truncate = pas bon pour les width infinies (n'affiche pas le glyph de fin selon la taille de la chaine) mais ok pour les tailles fixées
+        // Description enableWordWrapping
+        // Permet de faire du wrapping ou non
+        //TextInfo permet de connaitre la taille interne des elements (caractère et ligne)
+
+        // pas de wrapping par défaut
+        this.TextWrapping = TextWrapping.NoWrap;
+        this.TextTrimming = TextTrimming.None;
+
+        // appelle en interne left et top
+        this.SetText(this.Text);
+        this.SetFontSize(this.FontSize);
+        this.SetTextAlignment(this.TextAlignment);
+        this.SetVerticalAlignment(VerticalAlignmentOptions.Top);
+        //this.SetOutlineThickness(this.outlineThickness);
+    }
+
+    public void SetHitTestVisible(bool isHitTestVisible)
+    {
+        if (isHitTestVisible == true)
+        {
+            this.AddCollider();
+        }
+
+        //Log.WriteLine("textMeshProCollider?");
+
+        if (this.textMeshProCollider != null)
+        {
+            this.textMeshProCollider.enabled = isHitTestVisible;
+            //Log.WriteLine("textMeshProCollider enable? = " + this.textMeshProCollider.enabled);
+        }
+    }
+
+    private BoxCollider AddCollider()
+    {
+        if (this.textMeshProCollider == null)
+        {
+            var collider = this.TextMeshPro.gameObject.GetOrAddComponent<BoxCollider>();
+
+            this.textMeshProCollider = collider;
+
+            if (collider != null)
+            {
+                var x = this.rectTransform.sizeDelta.x;
+                var y = this.rectTransform.sizeDelta.y;
+
+                this.SetColliderSize(x, y);
+            }
+        }
+
+        return this.textMeshProCollider;
+    }
+
+    private void SetColliderSize(float width, float height)
+    {
+        if (this.textMeshProCollider != null)
+        {
+            this.textMeshProCollider.size = new UnityEngine.Vector3(width, height, 0.01f);
+        }
+    }
+}

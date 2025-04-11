@@ -1,0 +1,7 @@
+<linker>
+  <assembly fullname="Astrolabe.Diagnostics" preserve="all"/>
+  <assembly fullname="Astrolabe.Core" preserve="all"/>
+	<assembly fullname="Astrolabe.Core.Uwp" preserve="all"/>
+	<assembly fullname="Cryptolens.Licensing.CrossPlatform.dll" preserve="all"/>
+  <assembly fullname="Astrolabe.Core.Uwp.dll" preserve="all"/>
+</linker>

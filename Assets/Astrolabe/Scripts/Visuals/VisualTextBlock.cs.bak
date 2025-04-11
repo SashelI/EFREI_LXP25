@@ -1,0 +1,265 @@
+﻿using Agata.Twinkle.Renderers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using Agata.Twinkle;
+using Synergiz.Tools.Unity;
+using System.IO;
+using TMPro;
+using Agata.Diagnostics;
+using Microsoft.MixedReality.Toolkit.Experimental.UI;
+
+namespace Agata.Twinkle.Unity.Renderers
+{
+    /// <summary>
+    /// Rendu de TextBlock
+    /// </summary>
+
+    public class VisualTextBlock : VisualElement, IVisualTextBlock
+    {
+        public static void LinkToVisualFactory()
+        {
+            VisualElementFactory.Instance.Add(typeof(LogicalTextBlock), typeof(VisualTextBlock));
+        }
+ 
+        public VisualTextBlock(ILogicalElement logicalElement) : base(logicalElement)
+        {
+            textMeshPro = GameObject.Instantiate(TwinklePrefabFactory.Instance.PrefabTextMeshPro).GetComponent<LayoutTextMeshPro>();
+            this.TwinkleComponent = textMeshPro;
+        }
+
+        protected LayoutTextMeshPro textMeshPro;
+
+        public float Opacity
+        {
+            get
+            {
+                return this.textMeshPro.Opacity;
+            }
+
+            set
+            {
+                this.textMeshPro.Opacity = value;
+            }
+        }
+
+        /// <summary>
+        /// Text
+        /// </summary>
+
+        public string Text
+        {
+            get
+            {
+                return this.textMeshPro.Text;
+            }
+
+            set
+            {
+                this.textMeshPro.Text = value;
+            }
+        }
+
+        public float FontSize
+        {
+            get
+            {
+                return this.fontSize;
+            }
+
+            set
+            {
+                if (this.fontSize != value)
+                {
+                    this.fontSize = value;
+                    this.textMeshPro.FontSize = value;
+                }
+            }
+        }
+
+        private float fontSize;
+
+        public TextAlignment TextAlignment
+        {
+            get
+            {
+                return this.textAlignment;
+            }
+
+            set
+            {
+                this.textAlignment = value;
+                this.textMeshPro.TextAlignment = value;
+            }
+        }
+
+        private TextAlignment textAlignment = TextAlignment.Left;
+
+        public TextWrapping TextWrapping
+        {
+            get
+            {
+                return this.textWrapping;
+            }
+
+            set
+            {
+                this.textWrapping = value;
+                this.textMeshPro.TextWrapping = value;
+            }
+        }
+
+        private TextWrapping textWrapping = TextWrapping.NoWrap;
+
+        public TextTrimming TextTrimming
+        {
+            get
+            {
+                return this.textTrimming;
+            }
+
+            set
+            {
+                this.textTrimming = value;
+                this.textMeshPro.TextTrimming = value;
+            }
+        }
+        private TextTrimming textTrimming = TextTrimming.None;
+
+        public FontFamily FontFamily
+        {
+            get
+            {
+                return fontFamily;
+            }
+
+            set
+            {   
+                if(this.fontFamily != value)
+                {             
+                    this.fontFamily = value;
+                    
+                    var fontAsset = this.LoadFontSDF(value);                
+                    this.textMeshPro.SetFontSDF(fontAsset);
+                }
+            }
+        }
+
+        private FontFamily fontFamily;
+
+        private TMP_FontAsset LoadFontSDF(FontFamily fontFamily)
+        {
+            if(fontFamily != null && fontFamily.Source != null)
+            {
+                if(fontFamily.IsLoaded == true)
+                {
+                    return fontFamily.Content as TMP_FontAsset;
+                }
+
+                try
+                {
+                    Log.WriteLine("fontFamily.Source=" + fontFamily.Source);
+
+                    var fullFilename = UriInformation.ParseToRead(fontFamily.Source).GetPath();
+
+                    Log.WriteLine("fontFamily fullFilename=" + fullFilename);
+
+                    var font = new Font(fullFilename);
+                    var fontAsset = TMP_FontAsset.CreateFontAsset(font);
+                    fontFamily.Content = fontAsset;
+
+                    return fontAsset;
+                }
+                catch(Exception ex)
+                {
+                    Log.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
+
+        public SolidColorBrush Foreground
+        {
+            get
+            {
+                return this.textMeshPro.Foreground;
+            }
+
+            set
+            {
+                this.textMeshPro.Foreground = value;
+            }
+        }
+
+        /*
+        public float OutlineThickness
+        {
+            get
+            {
+                return this.textMeshPro.OutlineThickness;
+            }
+            
+            set
+            {
+                this.textMeshPro.OutlineThickness = value;
+            }
+        }
+
+        public SolidColorBrush OutlineColor
+        {
+            get
+            {
+                return this.textMeshPro.OutlineColor;
+            }
+
+            set
+            {
+                this.textMeshPro.OutlineColor = value;
+            }
+        }
+        */
+
+        // Mesure la taille du TextBlock sans prendre en compte les marges ni dans availableSizeWithoutMargin ni dans la sortie
+
+        public Size MeasureBounds(Size availableSizeWithoutMargin)
+        {
+
+            if(float.IsPositiveInfinity(availableSizeWithoutMargin.Width) == false)
+            {
+                this.textMeshPro.Width = availableSizeWithoutMargin.Width;
+            }
+            else
+            {
+                // la taille sera refixée plus tard avec le resultat du GetRenderValues et seront appliqué dans le resize
+                this.textMeshPro.Width = 99999;
+            }
+
+            if(float.IsPositiveInfinity(availableSizeWithoutMargin.Height) == false)
+            {
+                this.textMeshPro.Height = availableSizeWithoutMargin.Height; 
+            }
+            else
+            {
+                this.textMeshPro.Height = 99999;
+            }
+
+            var bounds =  this.textMeshPro.GetBounds(availableSizeWithoutMargin);
+
+            return bounds;
+        }
+
+        public void SetFontStyle(FontStyle fontStyle, FontWeight fontWeight, TextDecorations textDecoration, CharacterCasing characterCasing)
+        {
+            this.textMeshPro.SetFontStyle(fontStyle, fontWeight, textDecoration, characterCasing); 
+        }
+
+        public override void SetHitTestVisible(bool value)
+        {            
+            this.textMeshPro.SetHitTestVisible(value);
+        }
+    }
+}

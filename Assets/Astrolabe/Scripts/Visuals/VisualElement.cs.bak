@@ -1,0 +1,401 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Agata.Diagnostics;
+using Agata.Twinkle.Tools;
+using Microsoft.MixedReality.Toolkit.Input;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
+using UnityEngine;
+
+namespace Agata.Twinkle.Unity.Renderers
+{
+   public abstract class VisualElement : VisualObject, IVisualElement
+    {
+        // ici mettre le Control qui permet de stocker des enfants 
+        TwinkleComponent twinkleComponent;
+        AgataBillboard billboard;
+
+        public VisualElement(ILogicalElement logicalElement) : base(logicalElement)
+        {
+            this.LogicalElement = logicalElement;
+        }
+
+        // Element logique
+        public ILogicalElement LogicalElement
+        {
+            get
+            {
+                return logicalElement;
+            }
+
+            private set
+            {
+                logicalElement = value;
+                this.IsLogicalWindow = value is ILogicalWindow;
+            }
+        }
+
+        private ILogicalElement logicalElement;
+
+        public bool IsLogicalWindow
+        {
+            get;
+            private set;
+        }
+
+        public override object Element
+        {
+            get
+            {
+                return this.twinkleComponent;
+            }
+        }
+
+        public TwinkleComponent TwinkleComponent
+        {
+            get
+            {
+                return this.twinkleComponent;
+            }
+
+            protected set
+            {
+                this.twinkleComponent = value;
+
+                if (value != null)
+                {
+                    value.VisualElement = this;
+                    value.transform.name = value.name + this.LogicalElement;
+                }
+            }
+        }
+
+        /*
+        public static void SetHitTestVisible(TwinkleComponent rootComponent, bool value)
+        {
+            Log.WriteLine("SetHitTestVisible for " + rootComponent.VisualElement?.LogicalElement + " value=" + value);
+
+            var colliders = rootComponent.GetComponentsInChildren<BoxCollider>();
+
+            if (colliders != null)
+            {
+                foreach (var collider in colliders)
+                {
+                    collider.enabled = value;
+                }
+            }
+
+            var nearInteractionTouchables = rootComponent.GetComponentsInChildren<NearInteractionTouchable>();
+
+            if (nearInteractionTouchables != null)
+            {
+                foreach (var nearInteractionTouchable in nearInteractionTouchables)
+                {
+                    nearInteractionTouchable.enabled = value;
+                }
+            }
+        }
+        */
+
+        /// <summary>
+        /// a overrider
+        /// </summary>
+        /// <param name="value"></param>
+
+        public virtual void SetHitTestVisible(bool value)
+        {
+            isHitTestVisible = value;
+        }
+
+        protected bool isHitTestVisible = true;
+
+        public void SetVisibility(Visibility visibility)
+        {
+            this.twinkleComponent.gameObject.SetActive(visibility == Visibility.Visible);
+        }
+
+        public IVisualElement VisualParent
+        {
+            get
+            {
+                // On prend ParentTree car ParentElement ne permet pas de rentrer à l'intérieur des templates et des controles presenter  
+                var logicalParent = this.LogicalElement?.ParentTree as ILogicalElement;
+                return logicalParent?.VisualElement;
+            }
+        }
+
+        public Vector3 Rotation
+        {
+            get
+            {
+                return this.twinkleComponent.Rotation;
+            }
+
+            set
+            {
+                this.twinkleComponent.Rotation = value;
+            }
+        }
+
+        public Vector3 Scale
+        {
+            get
+            {
+                return this.twinkleComponent.Scale;
+            }
+
+            set
+            {
+                this.twinkleComponent.Scale = value;
+            }
+        }
+
+        public Vector3 Translation
+        {
+            get
+            {
+                return this.twinkleComponent.Translation;
+            }
+
+            set
+            {
+                this.twinkleComponent.Translation = value;
+            }
+        }
+
+        /// <summary>
+        /// Coordonnée correspondant à localposition de l'objet le plus haut de VisualElement (comme Window.Position.Coordinate mais en lecture pour ne pas casser le layout)
+        /// </summary>
+
+        public Vector3 LocalCoordinate
+        {
+            get
+            {
+                return this.twinkleComponent.transform.localPosition.ToVector3().ToVisual();
+            }
+        }
+
+        public Vector3 Pivot
+        {
+            get
+            {
+                return this.twinkleComponent.Pivot;
+            }
+
+            set
+            {
+                this.twinkleComponent.Pivot = value;
+            }
+        }
+
+        public Vector3 Angle
+        {
+            get
+            {
+                return this.twinkleComponent.transform.localEulerAngles.ToVector3();
+            }
+
+            set
+            {
+                this.twinkleComponent.transform.localEulerAngles = new UnityEngine.Vector3(value.X, value.Y, -value.Z);
+            }
+        }
+
+        public Vector3 Zoom
+        {
+            get
+            {
+                return this.twinkleComponent.transform.localScale.ToVector3();
+            }
+
+            set
+            {
+                this.twinkleComponent.transform.localScale = new UnityEngine.Vector3(value.X, value.Y, value.Z);
+            }
+        }
+
+        public void AddChild(IVisualElement child)
+        {
+            if (child != null)
+            {
+                this.twinkleComponent.AddChild(child);
+            }
+        }
+
+        public void RemoveChild(IVisualElement child)
+        {
+            if (child != null)
+            {
+                twinkleComponent.RemoveChild(child);
+            }
+        }
+
+        protected void Locate(Agata.Twinkle.Vector3 relativeLocation)
+        {
+            // ici on positionne le control 
+            this.twinkleComponent.Left = relativeLocation.X;
+            this.twinkleComponent.Top = relativeLocation.Y;
+            this.twinkleComponent.Forward = relativeLocation.Z;
+        }
+
+        protected override void DisposeOverride()
+        {
+            GameObject.Destroy(this.twinkleComponent.gameObject);
+        }
+
+        public virtual void Resize(Box box)
+        {
+            this.twinkleComponent.Width = box.Width;
+            this.twinkleComponent.Height = box.Height;
+            this.twinkleComponent.Depth = box.Depth;
+
+            this.Locate(box.Location);
+
+            this.ResizeOverride(box);        
+        }
+
+        protected virtual void ResizeOverride(Box box)
+        {
+        }
+
+        public void SetIsBillboardEnabled(bool isEnabled)
+        {
+            var gameObject = this.LogicalElement?.GetGameObject();
+
+            if (gameObject != null)
+            {
+                if (isEnabled == true)
+                {
+                    var behaviour = gameObject.GetOrAddComponent<AgataBillboard>();
+
+                    behaviour.enabled = true;
+                    this.billboard = behaviour;
+                }
+                else
+                {
+                    if(this.billboard != null)
+                    {
+                        this.billboard.enabled = false;
+                    }
+                }
+            }
+        }
+
+        public void SetBillboardPivotAxis(BillboardPivotAxis billboardPivotAxis)
+        {
+            if(this.billboard != null)
+            {
+                this.billboard.PivotAxis = (PivotAxis)(int)billboardPivotAxis;
+            }
+        }
+
+        public void SetBillboardParentRotationLocked(bool isParentRotationLocked)
+        {
+            if (this.billboard != null)
+            {
+                this.billboard.IsParentRotationLocked = isParentRotationLocked;
+            }
+        }
+
+        /// <summary>
+        /// Force la creation du RenderTransform
+        /// </summary>
+
+        public void EnsureRenderTransformExists()
+        {
+            this.TwinkleComponent.EnsureRenderTransformExists();
+        }
+
+        public Visibility RenderTransformVisibility
+        {
+            get
+            {
+                bool isActivated = this.TwinkleComponent.EnsureRenderTransformExists().gameObject.activeSelf;
+
+                return isActivated ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            set
+            {
+                this.TwinkleComponent.EnsureRenderTransformExists().gameObject.SetActive(value == Visibility.Visible);
+            }
+        }
+
+        /// <summary>
+        /// Sera utilisé dans VisualFluentElement et VisualModel3D pour forcer le type de shader à utiliser
+        /// </summary>
+
+        /*
+        public virtual ShaderMode ShaderMode 
+        { 
+            get; 
+            set; 
+        }
+        */
+
+        public void RefreshName(string name)
+        {
+            var go = this.LogicalElement.GetGameObject();
+        
+            if(go != null)
+            {
+                go.name = this.logicalElement.ToString();
+            }
+        }
+
+        public float GetDistanceFromHead(bool includeRenderTransformation)
+        {
+            var cameraPosition = Camera.main.transform.position;
+
+            Transform t1;
+
+            if (includeRenderTransformation == false)
+            {
+                t1 = this.LogicalElement.GetGameObject().transform;
+            }
+            else
+            {
+                t1 = this.LogicalElement.GetRenderTransform();
+
+                if (t1 == null)
+                {
+                    t1 = this.LogicalElement.GetGameObject().transform;
+                }
+            }
+
+            return UnityEngine.Vector3.Distance(t1.position, cameraPosition).ToLogical();
+        }
+
+        public float GetDistance(ILogicalElement logicalElementToCompare, bool includeRenderTransformation)
+        {
+            Transform t1;
+            Transform t2;
+
+            if (includeRenderTransformation == false)
+            {
+                t1 = this.LogicalElement.GetGameObject().transform;
+                t2 = logicalElementToCompare.GetGameObject().transform;
+            }
+            else
+            {
+                t1 = this.LogicalElement.GetRenderTransform();
+
+                if (t1 == null)
+                {
+                    t1 = this.LogicalElement.GetGameObject().transform;
+                }
+
+                t2 = logicalElementToCompare.GetRenderTransform();
+
+                if (t2 == null)
+                {
+                    t2 = logicalElementToCompare.GetGameObject().transform;
+                }
+            }
+
+            return UnityEngine.Vector3.Distance(t1.position, t2.position).ToLogical();
+        }
+    }
+}

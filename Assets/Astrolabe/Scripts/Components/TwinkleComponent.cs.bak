@@ -1,0 +1,661 @@
+﻿using Agata.Diagnostics;
+using Agata.Twinkle;
+using Agata.Twinkle.Tools;
+using Agata.Twinkle.Unity.Renderers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using Microsoft.MixedReality.Toolkit.Input;
+
+public abstract class TwinkleComponent : MonoBehaviour
+{
+    protected Transform renderTransform;
+    protected Transform renderTransformRotationScale;
+    protected Transform renderTransformOrigin;
+
+    protected NearInteractionGrabbable nearInteractionGrabbable;
+    protected BoxCollider nearInteractionGrabbableCollider;
+
+    private Transform childrenContainer;
+
+    private PixelConverter pixelConverter;
+
+    private bool isLogicalWindow = false;
+
+    public VisualElement VisualElement
+    {
+        get
+        {
+            return this.visualElement;
+        }
+
+        set
+        {
+            this.visualElement = value;
+
+            if (value != null)
+            {
+                this.isLogicalWindow = value.IsLogicalWindow;
+
+                this.Initialize();
+            }
+        }
+    }
+
+    private VisualElement visualElement;
+
+    public float Forward
+    {
+        get
+        {
+            return forward;
+        }
+
+        set
+        {
+            if (forward != value)
+            {
+                this.SetForward(value);
+            }
+        }
+    }
+
+    private float forward = float.NaN;
+
+    protected void SetForward(float value)
+    {
+        if (this.visualElement == null)
+        {
+            return;
+        }
+
+        this.forward = value;
+
+        if (this.isLogicalWindow == true)
+        {
+            return;
+        }
+
+        if (float.IsNaN(value))
+        {
+            value = 0;
+        }
+
+        float d = 0;
+
+        if (float.IsNaN(this.forward) == false)
+        {
+            d = this.forward;
+        }
+
+        this.SetForwardOverride(d);
+    }
+
+    protected virtual void SetForwardOverride(float forward)
+    {
+        var position = this.transform.localPosition;
+        var newPosition = new UnityEngine.Vector3(position.x, position.y, -forward);
+        this.transform.localPosition = newPosition;
+    }
+
+    public float Left
+    {
+        get
+        {
+            return left;
+        }
+
+        set
+        {
+            if (left != value)
+            {
+                this.SetLeft(value);
+            }
+        }
+    }
+
+    private float left = float.NaN;
+
+    protected void SetLeft(float value)
+    {
+        if (this.visualElement == null)
+        {
+            return;
+        }
+
+        this.left = value;
+
+        // cas d'une fenetre par exemple
+        // Elle n'a pas de parent et est centré sur elle même
+        // C'est important que le Set ne s'effectue pas notammement dans le cas d'un RadialView/FollowMe car il modifie sa position ce u(il n'aime pas du tout
+        // En revanche on perd le Margin (ce n'est pas grave sur une Window car le comportement est similaire en WPF/UWP)
+
+        if (isLogicalWindow == true)
+        {
+            return;
+        }
+
+        var parent = this.VisualElement.VisualParent;
+
+        if (parent == null)
+        {
+            return;
+        }
+
+        if (float.IsNaN(value))
+        {
+            value = 0;
+        }
+
+        var position = this.transform.localPosition;
+
+        float w = 0;
+
+        if (float.IsNaN(this.width) == false)
+        {
+            w = this.width;
+        }
+
+        //float parentWidth = 0;
+        //if(parent != null)
+        //{
+        //    parentWidth = pixelConverter.ToVisual(parent.LogicalElement.RenderSize.Width);
+        //}
+
+        float parentWidth = pixelConverter.ToVisual(parent.LogicalElement.RenderSize.Width);
+
+        var newPosition = new UnityEngine.Vector3(value + (w - parentWidth) / 2, position.y, position.z);
+
+        this.transform.localPosition = newPosition;
+    }
+
+    public float Top
+    {
+        get
+        {
+            return top;
+        }
+
+        set
+        {
+            if (top != value)
+            {
+                this.SetTop(value);
+            }
+        }
+    }
+
+    private float top = float.NaN;
+
+    protected void SetTop(float value)
+    {
+        if (this.visualElement == null)
+        {
+            return;
+        }
+
+        this.top = value;
+
+        // cas d'une fenetre par exemple
+        // Elle n'a pas de parent et est centré sur elle même
+        // C'est important que le Set ne s'eefectue pas notammement dans le cas d'un TagAlong
+
+        if (isLogicalWindow == true)
+        {
+            return;
+        }
+
+        var parent = this.VisualElement.VisualParent;
+
+        if (parent == null)
+        {
+            return;
+        }
+
+        if (float.IsNaN(value))
+        {
+            value = 0;
+        }
+
+        var position = this.transform.localPosition;
+
+        float h = 0;
+
+        if (float.IsNaN(this.height) == false)
+        {
+            h = this.height;
+        }
+
+        //float parentHeight = 0;
+
+        //if(parent != null)
+        //{
+        //    parentHeight = pixelConverter.ToVisual(parent.LogicalElement.RenderSize.Height);
+        //}
+
+        float parentHeight = pixelConverter.ToVisual(parent.LogicalElement.RenderSize.Height);
+
+        var newPosition = new UnityEngine.Vector3(position.x, -(value + (h - parentHeight) / 2), position.z);
+
+        this.transform.localPosition = newPosition;
+    }
+
+    public float Width
+    {
+        get
+        {
+            return this.width;
+        }
+
+        set
+        {
+            this.SetWidth(value);
+        }
+    }
+
+    private float width = float.NaN;
+
+    protected void SetWidth(float value)
+    {
+        this.width = value;
+
+        if (float.IsNaN(value) == false)
+        {
+            this.SetWidthOverride(value);
+            this.SetPivot(this.pivot);
+
+            if (this.nearInteractionGrabbableCollider != null)
+            {
+                var size = this.nearInteractionGrabbableCollider.size;
+
+                this.nearInteractionGrabbableCollider.size = new UnityEngine.Vector3(
+                    value,
+                    size.y,
+                    size.z
+                    );
+            }
+        }
+
+        // on replace left selon la taille
+        this.SetLeft(this.left);
+    }
+
+    protected virtual void SetWidthOverride(float width)
+    {
+
+    }
+
+    public float Height
+    {
+        get
+        {
+            return this.height;
+        }
+
+        set
+        {
+            // ne surtout ps faire de Leazyloading car cela peut casser le positionnement du top dans le cas ou la taille du parent à changer mais pas la taille du control courant
+            // par exemple : Dans un StackPanel (parent) on rend Visible un element Collapsed, la taille de stackpanel change et donc la position des controles également même si leur taille ne change pas
+            this.SetHeight(value);
+        }
+    }
+
+    private float height = float.NaN;
+
+    protected void SetHeight(float value)
+    {
+        this.height = value;
+
+        if (float.IsNaN(value) == false)
+        {
+            this.SetHeightOverride(value);
+            this.SetPivot(this.pivot);
+
+            if (this.nearInteractionGrabbableCollider != null)
+            {
+                var size = this.nearInteractionGrabbableCollider.size;
+
+                this.nearInteractionGrabbableCollider.size = new UnityEngine.Vector3(
+                    size.x,
+                    value,
+                    size.z
+                    );
+            }
+        }
+
+        // on replace left selon la taille
+        this.SetTop(this.top);
+    }
+
+    protected virtual void SetHeightOverride(float height)
+    {
+
+    }
+
+    public float Depth
+    {
+        get
+        {
+            return this.depth;
+        }
+
+        set
+        {
+            this.SetDepth(value);
+        }
+    }
+
+    private float depth = float.NaN;
+
+    protected void SetDepth(float value)
+    {
+        this.depth = value;
+
+        if (float.IsNaN(value) == false)
+        {
+            this.SetDepthOverride(value);
+
+            if (this.nearInteractionGrabbableCollider != null)
+            {
+                var size = this.nearInteractionGrabbableCollider.size;
+
+                this.nearInteractionGrabbableCollider.size = new UnityEngine.Vector3(
+                    size.x,
+                    size.y,
+                    value
+                    );
+            }
+        }
+    }
+
+    protected virtual void SetDepthOverride(float depth)
+    {
+    }
+
+    public Transform EnsureRenderTransformExists()
+    {
+        if (this.renderTransform == null)
+        {
+            this.renderTransform = new GameObject("RenderTransform").transform;
+
+            this.renderTransformRotationScale = new GameObject("RenderTransformRotationScale").transform;
+            this.renderTransformRotationScale.transform.SetParent(this.renderTransform, false);
+
+            this.renderTransformOrigin = new GameObject("RenderTransformOrigin").transform;
+            this.renderTransformOrigin.transform.SetParent(this.renderTransformRotationScale, false);
+
+            // copie les enfants dans le renderTransform
+
+            while (transform.childCount != 0)
+            {
+                var child = this.transform.GetChild(0);
+                child.SetParent(this.renderTransformOrigin, false);
+            }
+
+            this.renderTransform.transform.SetParent(this.transform, false);
+        }
+
+        return renderTransform;
+    }
+
+    public Agata.Twinkle.Vector3 Rotation
+    {
+        get
+        {
+            if (renderTransform == null)
+            {
+                return rotation;
+            }
+            else
+            {
+                var a = this.renderTransformRotationScale.localEulerAngles;
+                return new Agata.Twinkle.Vector3(a.x, a.y, -a.z);
+            }
+        }
+
+        set
+        {
+            this.rotation = value;
+
+            this.EnsureRenderTransformExists();
+            this.renderTransformRotationScale.localEulerAngles = new UnityEngine.Vector3(value.X, value.Y, -value.Z);
+        }
+    }
+
+    private Agata.Twinkle.Vector3 rotation = new Agata.Twinkle.Vector3(0, 0, 0);
+
+    public virtual Agata.Twinkle.Vector3 Scale
+    {
+        get
+        {
+            if (renderTransform == null)
+            {
+                return scale;
+            }
+            else
+            {
+                return this.renderTransformRotationScale.localScale.ToVector3();
+            }
+        }
+
+        set
+        {
+            this.scale = value;
+
+            this.EnsureRenderTransformExists();
+
+            this.renderTransformRotationScale.localScale = new UnityEngine.Vector3(value.X, value.Y, value.Z);
+        }
+    }
+
+    private Agata.Twinkle.Vector3 scale = new Agata.Twinkle.Vector3(1, 1, 1);
+
+    public virtual Agata.Twinkle.Vector3 Pivot
+    {
+        get
+        {
+            return pivot;
+        }
+
+        set
+        {
+            this.SetPivot(value);
+        }
+    }
+
+    private Agata.Twinkle.Vector3 pivot = new Agata.Twinkle.Vector3(0.5f, 0.5f, 0.5f);
+
+    private void SetPivot(Agata.Twinkle.Vector3 value)
+    {
+        this.pivot = value;
+
+        if (value.X != 0.5 || value.Y != 0.5 || value.Z != 0.5)
+        {
+            if (Agata.Twinkle.Vector3.IsNaN(value, true))
+            {
+                return;
+            }
+
+            this.EnsureRenderTransformExists();
+
+            float x = float.IsNaN(this.width) ? 0 : (value.X - 0.5f) * this.width;
+            float y = float.IsNaN(this.height) ? 0 : -(value.Y - 0.5f) * this.height;
+            float z = float.IsNaN(this.depth) ? 0 : (value.Z - 0.5f) * this.depth;
+
+            var v = new UnityEngine.Vector3(x, y, z);
+
+            //Log.WriteLine("Pivot value=" + value + " vector=" + v);
+
+            this.renderTransformRotationScale.localPosition = v;
+            this.renderTransformOrigin.localPosition = new UnityEngine.Vector3(-x, -y, -z);
+        }
+    }
+
+    public Agata.Twinkle.Vector3 Translation
+    {
+        get
+        {
+            if (this.renderTransform == null)
+            {
+                return translation;
+            }
+            else
+            {
+                var v = renderTransform.localPosition;
+                return new Agata.Twinkle.Vector3(v.x, -v.y, -v.z);
+            }
+        }
+
+        set
+        {
+            this.translation = value;
+
+            this.EnsureRenderTransformExists();
+
+            this.renderTransform.localPosition = new UnityEngine.Vector3(value.X, -value.Y, -value.Z);
+        }
+    }
+
+    private Agata.Twinkle.Vector3 translation = Agata.Twinkle.Vector3.Zero;
+
+    public Agata.Twinkle.Vector3 TranslationAfterRotation
+    {
+        get
+        {
+            if (renderTransform == null)
+            {
+                return translationAfterRotation;
+            }
+            else
+            {
+                var v = renderTransformRotationScale.localPosition;
+                return new Agata.Twinkle.Vector3(v.x, -v.y, -v.z);
+            }
+        }
+
+        set
+        {
+            this.translationAfterRotation = value;
+
+            this.EnsureRenderTransformExists();
+            this.renderTransformRotationScale.localPosition = new UnityEngine.Vector3(value.X, -value.Y, -value.Z);
+        }
+    }
+
+    private Agata.Twinkle.Vector3 translationAfterRotation = Agata.Twinkle.Vector3.Zero;
+
+    /// <summary>
+    /// Le Component est up mais le VisualElement n'est pas encore disponible
+    /// </summary>
+
+    void Awake()
+    {
+        // Dans le cas ou l'on souhaite que les children soient stocké dans un GO particulier   
+        //this.childrenContainer = this.transform.Find("ContentPresenter");
+
+#if UNITY_EDITOR
+        try
+        {
+            this.pixelConverter = TwinkleApplication.Instance.Settings.PixelConverter;
+        }
+        catch (NullReferenceException)
+        {
+            // cas particulier et specifique à l'éditeur
+            // il est possible qu'un VisualElement soit ajouté à la racine de la scene dynamiquement lorsque l'editeur crash lors d'une recompilation ou d'un arrêt de l'application par le user
+            // On va donc le détruire nous même sinon il démarrera peut être avant que AgataManager soit chargé
+            var root = this.gameObject.GetRoot();
+
+            Debug.LogWarning("The VisualElement " + root.name + " has been removed by Agata cause it is an artefact of the editor. Please remove it from the scene!");
+
+            GameObject.Destroy(root);
+            return;
+        }
+#else
+            this.pixelConverter = TwinkleApplication.Instance.Settings.PixelConverter;
+#endif
+
+        this.AwakeOverride();
+    }
+
+    /// <summary>
+    /// à partir du Initialize le Awake est passé et le VisualElement est disponible
+    /// </summary>
+
+    private void Initialize()
+    {
+        this.SetWidth(this.Width);
+        this.SetHeight(this.Height);
+        this.SetForward(this.Forward);
+
+        this.InitializeOverride();
+
+        AgataManager.Instance.OnLogicalElementInstantiated(this.VisualElement.LogicalElement, this.VisualElement);
+    }
+
+    public virtual void InitializeOverride()
+    {
+
+    }
+
+    protected abstract void AwakeOverride();
+
+    // Renvoi l'endroit ou les enfants sont ajoutées
+    // on peut fixer childrenContainer pour avoir un endroit different de rendertransform ou transform comme parent
+
+    public virtual Transform GetChildrenContainer()
+    {
+        if (this.childrenContainer == null)
+        {
+            if (this.renderTransformOrigin != null)
+            {
+                return this.renderTransformOrigin;
+            }
+
+            return this.transform;
+        }
+
+        return this.childrenContainer;
+    }
+
+    public Transform GetRenderTransform()
+    {
+        return renderTransform;
+    }
+
+    public void AddChild(IVisualElement visualElement)
+    {
+        var child = visualElement.Element as TwinkleComponent;
+        var childrenContainer = this.GetChildrenContainer();
+
+        if (visualElement.LogicalElement is LogicalWindow)
+        {
+            // On est en mode world
+            child.transform.SetParent(childrenContainer, true);
+        }
+        else
+        {
+            child.transform.SetParent(childrenContainer, false);
+        }
+    }
+
+    public void RemoveChild(IVisualElement visualElement)
+    {
+        //Log.WriteLine(visualElement.ToString());
+
+        var child = visualElement.Element as TwinkleComponent;
+
+        if (visualElement.LogicalElement is LogicalWindow)
+        {
+            // On est en mode world
+            child.transform.SetParent(null, true);
+        }
+        else
+        {
+            child.transform.SetParent(null, false);
+        }
+    }
+}
+

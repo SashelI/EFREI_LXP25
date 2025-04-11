@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1287036223468593730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7681747197128686095}
+  - component: {fileID: 4169861228749144634}
+  m_Layer: 0
+  m_Name: AndroidBrowser
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7681747197128686095
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287036223468593730}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4169861228749144634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287036223468593730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f51dc09bf9e35804ba0f5e76c527025e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  browserCanvas: {fileID: 0}
+  canvasOffestZ: 0.5
+  m_skin: {fileID: 11400000, guid: 07c1616acb3e05d4789781b38d6ab800, type: 2}
+  minWidth: 380
+  minHeight: 300
+  narrowScreenWidth: 380
+  quickLinksMaxWidthPercentage: 0.4
+  sortFilesByName: 1
+  excludedExtensions:
+  - .lnk
+  - .tmp
+  - .url
+  quickLinks:
+  - target: 5
+    name: Documents
+    icon: {fileID: 0}
+  - target: 0
+    name: Desktop
+    icon: {fileID: 0}
+  generateQuickLinksForDrives: 1
+  contextMenuShowDeleteButton: 1
+  contextMenuShowRenameButton: 1
+  showResizeCursor: 1
+  window: {fileID: 0}
+  windowResponsiveRows:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  topViewNarrowScreen: {fileID: 0}
+  middleView: {fileID: 0}
+  middleViewQuickLinks: {fileID: 0}
+  middleViewFiles: {fileID: 0}
+  middleViewSeparator: {fileID: 0}
+  itemPrefab: {fileID: 5604173570977083426, guid: 415826c2f933afa41a5086234e1a1a06,
+    type: 3}
+  quickLinkPrefab: {fileID: 114000012163346592, guid: f7659cd49d51be44e99f36da9e5f4914,
+    type: 3}
+  titleText: {fileID: 0}
+  titleBackground: {fileID: 0}
+  backButton: {fileID: 0}
+  forwardButton: {fileID: 0}
+  upButton: {fileID: 0}
+  moreOptionsButton: {fileID: 0}
+  pathInputField: {fileID: 0}
+  pathInputFieldSlotTop: {fileID: 0}
+  pathInputFieldSlotBottom: {fileID: 0}
+  searchInputField: {fileID: 0}
+  quickLinksContainer: {fileID: 0}
+  quickLinksScrollRect: {fileID: 0}
+  filesContainer: {fileID: 0}
+  filesScrollRect: {fileID: 0}
+  listView: {fileID: 0}
+  filenameInputField: {fileID: 0}
+  filenameInputFieldOverlayText: {fileID: 0}
+  filenameImage: {fileID: 0}
+  filtersDropdown: {fileID: 0}
+  showHiddenFilesToggle: {fileID: 0}
+  submitButtonText: {fileID: 0}
+  allButtons:
+  - {fileID: 0}
+  - {fileID: 0}
+  moreOptionsContextMenuPosition: {fileID: 0}
+  renameItem: {fileID: 0}
+  contextMenu: {fileID: 0}
+  fileOperationConfirmationPanel: {fileID: 0}
+  accessRestrictedPanel: {fileID: 0}
+  resizeCursorHandler: {fileID: 0}

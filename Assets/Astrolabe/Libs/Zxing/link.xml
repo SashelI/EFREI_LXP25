@@ -1,0 +1,3 @@
+<linker>
+  <assembly fullname="zxing.unity" preserve="all"/>
+</linker>

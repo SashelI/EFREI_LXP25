@@ -1,0 +1,5 @@
+﻿<App>
+ 
+	<Window Name="MainWindow" Visibility="Collapsed">
+	</Window>
+</App>
