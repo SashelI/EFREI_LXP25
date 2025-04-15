@@ -1424,6 +1424,7 @@ GameObject:
   - component: {fileID: 790612442}
   - component: {fileID: 790612441}
   - component: {fileID: 790612440}
+  - component: {fileID: 8842647084790629920}
   m_Layer: 0
   m_Name: Astrolabe
   m_TagString: AstrolabePrefab
@@ -1475,6 +1476,18 @@ MonoBehaviour:
   defaultAzureSpeechRecognitionRegion: francecentral
   ignoredLogTags:
   - OPTIONAL_COLLAB_PROPERTY
+--- !u!114 &8842647084790629920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7777041836017516399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04ef03b259996c442ada56da53551261, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -15,9 +15,9 @@ using Windows.Perception.Spatial;
 using UnityEngine.XR.WSA;
 #endif
 
+#if UNITY_EDITOR || WINDOWS_UWP
 	public static class QrCodeExtensions
 	{
-#if UNITY_EDITOR || WINDOWS_UWP
 
 		public static ThreadSafeQrCode ToThreadSafeQrCode(this QRCode qrcode)
 		{
@@ -187,6 +187,7 @@ using UnityEngine.XR.WSA;
 
 #endif
 	}
+#endif
 
 	public class QrCodeContentAbsolute : QrCodeContent
 	{
@@ -215,6 +216,5 @@ using UnityEngine.XR.WSA;
 		{
 			return GetCenteredPosition(SpatialSizeAbsolute, SpatialSizeAbsolute, visualForward);
 		}
-#endif
 	}
 }
