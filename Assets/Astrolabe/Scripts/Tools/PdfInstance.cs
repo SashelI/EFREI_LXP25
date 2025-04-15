@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 using Astrolabe.Diagnostics;
 using PDFtoImage;
 using SkiaSharp;
-#if UNITY_ANDROID && !UNITY_EDITOR
-using Synergiz.Tools.Unity;
-#endif
 
 namespace Assets.Astrolabe.Scripts.Tools
 {

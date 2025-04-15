@@ -12,12 +12,6 @@ namespace Assets.Scripts.Tools
 	public static class OSUtilities
 	{
 		/// <summary>
-		/// Url vers la page du site web de synergiz pour les upsells
-		/// Garder l'utm pour le tracking
-		/// </summary>
-		public static string UrlUpsell = @"https://www.welcometoharbor.io?utm_source=MetaQuest&utm_medium=Horizon&utm_id=HarborMQ";
-
-		/// <summary>
 		/// Launch Edge browser on url page
 		/// </summary>
 		/// <param name="url">Web url to open</param>
