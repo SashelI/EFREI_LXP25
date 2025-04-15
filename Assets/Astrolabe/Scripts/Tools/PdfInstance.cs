@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Astrolabe.Diagnostics;
 using PDFtoImage;
 using SkiaSharp;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace Assets.Astrolabe.Scripts.Tools
 {
