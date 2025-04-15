@@ -15,11 +15,12 @@ Material:
   - _BORDER_LIGHT
   - _BORDER_LIGHT_OPAQUE
   - _BORDER_LIGHT_REPLACES_ALBEDO
-  - _BORDER_LIGHT_USES_COLOR
+  - _EMISSION
   - _HOVER_COLOR_OVERRIDE
   - _INDEPENDENT_CORNERS
   - _NEAR_LIGHT_FADE
   - _PROXIMITY_LIGHT_COLOR_OVERRIDE
+  - _REFLECTIONS
   - _ROUND_CORNERS
   - _SPECULAR_HIGHLIGHTS
   - _USE_WORLD_SCALE
@@ -99,7 +100,7 @@ Material:
     - _BlurBorderIntensity: 0
     - _BlurMode: 0
     - _BlurTextureIntensity: 1
-    - _BorderColorMode: 2
+    - _BorderColorMode: 0
     - _BorderLight: 1
     - _BorderLightOpaque: 1
     - _BorderLightOpaqueAlpha: 1
@@ -121,7 +122,7 @@ Material:
     - _EdgeSmoothingMode: 0
     - _EdgeSmoothingValue: 0
     - _EnableChannelMap: 0
-    - _EnableEmission: 0
+    - _EnableEmission: 1
     - _EnableHoverColorOverride: 1
     - _EnableLocalSpaceTriplanarMapping: 0
     - _EnableNormalMap: 0
@@ -136,7 +137,7 @@ Material:
     - _FadeBeginDistance: 0.37
     - _FadeCompleteDistance: 0.5
     - _FadeMinValue: 0
-    - _FluentLightIntensity: 1
+    - _FluentLightIntensity: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -164,7 +165,7 @@ Material:
     - _ProximityLight: 0
     - _ProximityLightSubtractive: 0
     - _ProximityLightTwoSided: 0
-    - _Reflections: 0
+    - _Reflections: 1
     - _Refraction: 1
     - _RefractiveIndex: 0
     - _RenderQueueOverride: -1
@@ -200,7 +201,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BlurBackgroundRect: {r: 0, g: 0, b: 1, a: 1}
-    - _BorderColor: {r: 0.5686274, g: 0.6627451, b: 0.8156863, a: 0}
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0}
     - _ClippingBorderColor: {r: 1, g: 0.20000002, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
@@ -221,5 +222,5 @@ Material:
     - _ProximityLightMiddleColorOverride: {r: 0, g: 1, b: 0, a: 0.5}
     - _ProximityLightOuterColorOverride: {r: 0, g: 0, b: 1, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
-    - _RoundCornersRadius: {r: 0.0022, g: 0.022000002, b: 0.022000002, a: 0.022000002}
+    - _RoundCornersRadius: {r: 0.07, g: 0.10000001, b: 0.10000001, a: 0.10000001}
   m_BuildTextureStacks: []

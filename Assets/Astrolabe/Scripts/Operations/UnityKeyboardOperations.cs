@@ -78,7 +78,8 @@ namespace Assets.Astrolabe.Scripts.Operations
 
 				// KeyCode qu'on ne gère pas
 				if (Keyboard.current == null || keyCode > Keyboard.current.allKeys.Count - 1
-				                             || keyCode == 0 || key == Key.None)
+				                             || keyCode == 0 || key == Key.None
+				                             || Keyboard.current[key] == null)
 				{
 					continue;
 				}

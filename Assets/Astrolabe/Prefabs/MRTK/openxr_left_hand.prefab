@@ -23,7 +23,7 @@ PrefabInstance:
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: fallbackControllerModel
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 5976469751327894969, guid: 1102adc710b58ee45adb08bdd5d4767c, type: 3}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: myAction.m_UseReference
       value: 1
@@ -94,15 +94,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[1].m_Id
-      value: 47d26865-4bf7-4c41-988b-a51e5c1e86c6
+      value: bd7e4bb9-b53f-406e-9f94-058bea2fa8cc
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[2].m_Id
-      value: b4601b33-f74a-49c9-96d4-81cf596d9b13
-      objectReference: {fileID: 0}
-    - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-      propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[3].m_Id
-      value: c3b58a5a-257e-4122-af66-075964fe236f
+      value: 47d26865-4bf7-4c41-988b-a51e5c1e86c6
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[0].m_Path
@@ -110,11 +106,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[1].m_Path
-      value: <QuestProTouchController>{LeftHand}/{IsTracked}
+      value: <OculusTouchController>{LeftHand}/isTracked
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[2].m_Path
-      value: <QuestTouchPlusController>/isTracked
+      value: <QuestProTouchController>{LeftHand}/{IsTracked}
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[0].m_Action
@@ -126,10 +122,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
       propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[2].m_Action
-      value: Controller Detected
-      objectReference: {fileID: 0}
-    - target: {fileID: -7366846053233975685, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-      propertyPath: controllerDetectedAction.m_Action.m_SingletonActionBindings.Array.data[3].m_Action
       value: Controller Detected
       objectReference: {fileID: 0}
     - target: {fileID: 3507431783398283103, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
@@ -192,53 +184,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: openxr_left_hand
       objectReference: {fileID: 0}
-    - target: {fileID: 5709336421934327412, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5709336421934327412, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-      propertyPath: 'm_Materials.Array.data[2]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 57df713765719824cb8a3189045c20ba, type: 2}
-    m_RemovedComponents:
-    - {fileID: 3507431783398283103, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4354293980546992658, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-      insertIndex: 1
-      addedObject: {fileID: 8895555627552169521}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
---- !u!1 &1423679602657988571 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4354293980546992658, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-  m_PrefabInstance: {fileID: 3435228643201517001}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8895555627552169521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1423679602657988571}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63e8ac18cee1c3848a7d9352a5c65edf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handNode: 4
-  showHandsOnTransparentDisplays: 0
-  UpdateJointsWhenNotRendered: 1
-  wrist: {fileID: 7222341071315764735}
-  handRenderer: {fileID: 6960244478533591997}
-  pinchAmountMaterialProperty: _PinchAmount
---- !u!137 &6960244478533591997 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5709336421934327412, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-  m_PrefabInstance: {fileID: 3435228643201517001}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &7222341071315764735 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5446693289115484214, guid: da93d751ddc0f64468dfc02f18d02d00, type: 3}
-  m_PrefabInstance: {fileID: 3435228643201517001}
-  m_PrefabAsset: {fileID: 0}

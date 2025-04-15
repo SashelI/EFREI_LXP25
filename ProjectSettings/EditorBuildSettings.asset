@@ -8,6 +8,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/Scenes/MainMetaQuest.unity
+    guid: a83c4c7035dd59a48b9562c13f9fe6cb
+  - enabled: 1
+    path: Assets/Scenes/AstrolabeMetaQuestScene.unity
+    guid: b046aac2062c0d34cb3808ce507d3725
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: a81bc82d4fd64f94da3d80eafa9b7c3c, type: 2}
