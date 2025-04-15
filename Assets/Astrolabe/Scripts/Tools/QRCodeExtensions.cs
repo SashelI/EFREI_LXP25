@@ -1,10 +1,10 @@
 ﻿using System;
 using Astrolabe.Twinkle;
 using Astrolabe.Twinkle.Tools;
-#if UNITY_EDITOR || WINDOWS_UWP
+
 using Microsoft.MixedReality.OpenXR;
 using Microsoft.MixedReality.QR;
-#endif
+
 using UnityEngine;
 
 namespace Assets.Astrolabe.Scripts.Tools
@@ -18,6 +18,7 @@ using UnityEngine.XR.WSA;
 	public static class QrCodeExtensions
 	{
 #if UNITY_EDITOR || WINDOWS_UWP
+
 		public static ThreadSafeQrCode ToThreadSafeQrCode(this QRCode qrcode)
 		{
 			return new ThreadSafeQrCode(qrcode);
@@ -51,7 +52,6 @@ using UnityEngine.XR.WSA;
 
 			return code;
 		}
-#endif
 
 #if !UNITY_2020_1_OR_NEWER
     public static Pose? GetSpatialPose(Guid spatialGraphNodeId, float physicalSideLength)
@@ -215,5 +215,6 @@ using UnityEngine.XR.WSA;
 		{
 			return GetCenteredPosition(SpatialSizeAbsolute, SpatialSizeAbsolute, visualForward);
 		}
+#endif
 	}
 }
