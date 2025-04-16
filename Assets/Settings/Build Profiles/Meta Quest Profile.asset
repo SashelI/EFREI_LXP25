@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 15003, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: Meta Quest Harbor
+  m_Name: Meta Quest Profile
   m_EditorClassIdentifier: 
   m_AssetVersion: 1
   m_BuildTarget: 13
@@ -20,8 +20,10 @@ MonoBehaviour:
     rid: 529516197146787943
   m_OverrideGlobalSceneList: 1
   m_Scenes:
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/Scenes/MainMetaQuest.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/CORRIGE-EXO MRTK - META.unity
   m_ScriptingDefines:
   - METAQUEST
   m_PlayerSettingsYaml:
@@ -796,7 +798,7 @@ MonoBehaviour:
     - line: '|   webGLCloseOnQuit: 0'
     - line: '|   webWasm2023: 0'
     - line: '|   scriptingDefineSymbols:'
-    - line: '|     Android: OCULUSINTEGRATION_PRESENT;MRTK_GLTF_IMPORTER_OFF;PHOTON_VOICE_DEFINED'
+    - line: '|     Android: OCULUSINTEGRATION_PRESENT;MRTK_GLTF_IMPORTER_OFF'
     - line: '|     EmbeddedLinux: MAGICLEAP;PHOTON_VOICE_DEFINED'
     - line: '|     GameCoreScarlett: PHOTON_VOICE_DEFINED'
     - line: '|     GameCoreXboxOne: MAGICLEAP;PHOTON_VOICE_DEFINED'
