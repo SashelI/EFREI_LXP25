@@ -393,7 +393,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5499070473167639758}
   - component: {fileID: 5709336421934327412}
-  - component: {fileID: 612840893788088140}
   m_Layer: 0
   m_Name: R_Hand
   m_TagString: Untagged
@@ -498,28 +497,6 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.0005766939, y: -0.00015951612, z: 0.0005459594}
     m_Extent: {x: 0.0009641772, y: 0.0005439168, z: 0.00091230933}
   m_DirtyAABB: 0
---- !u!64 &612840893788088140
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3957823326167938785}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -653043844983088931, guid: ba7d82c8230bba148a0448874cca05cd, type: 3}
 --- !u!1 &4042160540912683627
 GameObject:
   m_ObjectHideFlags: 0
